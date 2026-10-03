@@ -341,6 +341,10 @@ Recompile and restart.
 
 ---
 
-## License
+## Credits and License
 
-MIT — use this however you want.
+This project is based on [Your-OWN-AI by perryvegehan](https://github.com/perryvegehan/Your-OWN-AI).
+
+My contributions include UI rebranding, cloud deployment configuration, and HNSW recall benchmarking.
+
+The upstream README identifies the project as MIT-licensed. Refer to the upstream repository for the original license and copyright notices, and preserve all applicable notices when redistributing the code.
