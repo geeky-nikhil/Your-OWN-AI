@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>VectorDB — HNSW + RAG</title>
+<title>Geeky Nikhil | VectorDB — Semantic Search & Local RAG</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -28,7 +28,7 @@ body {
   display: flex; flex-direction: column;
 }
 
-/* ── HEADER ── */
+/* â”€â”€ HEADER â”€â”€ */
 header {
   background: var(--card); border-bottom: 1px solid var(--border);
   padding: 10px 20px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;
@@ -44,21 +44,21 @@ header h1 {
 .badge.err { border-color: var(--red); color: var(--red); background: rgba(243,139,168,.1); }
 #statsLabel { margin-left: auto; font-size: 11px; color: var(--muted); }
 
-/* ── LAYOUT ── */
+/* â”€â”€ LAYOUT â”€â”€ */
 .layout { display: flex; flex: 1; overflow: hidden; }
 .left-panel { width: 260px; flex-shrink: 0; background: var(--card); border-right: 1px solid var(--border); overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 18px; }
 .center-panel { flex: 1; position: relative; overflow: hidden; }
 #scatter { display: block; width: 100%; height: 100%; }
 .right-panel { width: 360px; flex-shrink: 0; background: var(--card); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
 
-/* ── TABS ── */
+/* â”€â”€ TABS â”€â”€ */
 .tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .tab { flex: 1; padding: 10px 6px; text-align: center; font-size: 10px; letter-spacing: 1px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; transition: all .2s; }
 .tab.on { color: var(--accent); border-bottom-color: var(--accent); }
 .tab-content { display: none; flex: 1; overflow-y: auto; padding: 16px; flex-direction: column; gap: 16px; }
 .tab-content.on { display: flex; }
 
-/* ── COMMON COMPONENTS ── */
+/* â”€â”€ COMMON COMPONENTS â”€â”€ */
 .sec { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
 input[type=text], select, textarea {
   width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
@@ -90,7 +90,7 @@ button {
 .leg-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
 .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 
-/* ── RESULTS ── */
+/* â”€â”€ RESULTS â”€â”€ */
 .results { display: flex; flex-direction: column; gap: 7px; }
 .rcard { background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 10px 12px; animation: fadeUp .25s ease; }
 @keyframes fadeUp { from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)} }
@@ -103,7 +103,7 @@ button {
 .del   { background: rgba(243,139,168,.12); color: var(--red); border: 1px solid rgba(243,139,168,.25); border-radius: 4px; cursor: pointer; font-size: 10px; padding: 2px 7px; font-family: inherit; transition: background .2s; width: auto; }
 .del:hover { background: rgba(243,139,168,.25); }
 
-/* ── LATENCY / BENCH / LAYERS ── */
+/* â”€â”€ LATENCY / BENCH / LAYERS â”€â”€ */
 .lat-big { font-size: 32px; font-weight: 600; color: var(--cs); text-shadow: 0 0 20px rgba(0,217,255,.4); }
 .lat-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .bench { display: flex; flex-direction: column; gap: 9px; }
@@ -119,7 +119,7 @@ button {
 .lcount { width: 80px; text-align: right; color: var(--muted); }
 #vecCvs { display: block; width: 100%; background: var(--bg); border-radius: 5px; }
 
-/* ── DOCUMENT LIST ── */
+/* â”€â”€ DOCUMENT LIST â”€â”€ */
 .doc-list { display: flex; flex-direction: column; gap: 7px; }
 .dcard { background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 10px 12px; animation: fadeUp .25s ease; }
 .dcard-title { font-size: 12px; font-weight: 500; margin-bottom: 4px; color: var(--green); }
@@ -127,12 +127,12 @@ button {
 .dcard-foot { display: flex; justify-content: space-between; align-items: center; }
 .dcard-words { font-size: 9px; color: var(--muted); }
 
-/* ── OLLAMA STATUS ── */
+/* â”€â”€ OLLAMA STATUS â”€â”€ */
 .ollama-status { background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 10px 12px; font-size: 11px; line-height: 1.6; }
 .ollama-status.ok { border-color: rgba(166,227,161,.3); }
 .ollama-status.err { border-color: rgba(243,139,168,.3); }
 
-/* ── CHAT ── */
+/* â”€â”€ CHAT â”€â”€ */
 .chat-history { display: flex; flex-direction: column; gap: 12px; }
 .chat-q { background: rgba(108,99,255,.12); border: 1px solid rgba(108,99,255,.25); border-radius: 7px; padding: 10px 12px; font-size: 12px; line-height: 1.5; }
 .chat-a { background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 12px; }
@@ -146,37 +146,171 @@ button {
 .thinking { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
 .spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.typing::after { content: '▋'; animation: blink 1s step-end infinite; }
+.typing::after { content: 'â–‹'; animation: blink 1s step-end infinite; }
 @keyframes blink { 50% { opacity: 0; } }
 
-/* ── TOOLTIP ── */
+/* â”€â”€ TOOLTIP â”€â”€ */
 #tip { position: fixed; display: none; background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 7px 11px; font-size: 11px; pointer-events: none; max-width: 220px; z-index: 200; line-height: 1.5; }
 
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 </style>
+<style id="geeky-nikhil-theme">
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  color-scheme: dark;
+  --bg: #0b1020;
+  --panel: #111a2e;
+  --panel-hover: #17233b;
+  --border: #263653;
+  --text: #e8eefc;
+  --muted: #91a1bd;
+  --accent: #9b8cff;
+  --accent2: #42d9ee;
+}
+
+html { background: var(--bg); }
+body {
+  background: radial-gradient(ellipse at top, #172044 0%, var(--bg) 58%) !important;
+  color: var(--text) !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+button, input, select, textarea { font: inherit; }
+input, select, textarea {
+  background-color: #0b1427 !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+}
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 1px;
+}
+button {
+  transition: background-color .18s ease, border-color .18s ease,
+              transform .18s ease, box-shadow .18s ease;
+  border-radius: 10px;
+}
+button:hover {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 16px #9b8cff22;
+}
+button:active { transform: scale(.98); }
+pre, code, .mono {
+  font-family: 'JetBrains Mono', Consolas, monospace !important;
+}
+a { color: var(--accent2); }
+::selection { background: #6655cc88; }
+</style>
+
+<style id="geeky-beige-theme">
+:root {
+  color-scheme: light;
+  --bg: #f6f0e6;
+  --panel: #fffaf2;
+  --card: #fdf7ed;
+  --border: #ddcdb9;
+  --muted: #817566;
+  --text: #392b20;
+  --accent: #b76543;
+  --accent2: #d18a62;
+  --green: #6e8051;
+  --red: #a64e49;
+}
+html, body {
+  background: #f6f0e6 !important;
+  color: #392b20 !important;
+}
+body {
+  background-image: radial-gradient(ellipse at top, #fffaf2 0%, #f6f0e6 75%) !important;
+}
+header, nav, .topbar, .tabs, .tab-bar {
+  background: #f8f2e9 !important;
+  border-color: #ddcdb9 !important;
+}
+h1, h2, h3, label, .section-title, .tab {
+  color: #493528 !important;
+}
+p, small, .muted, .subtitle {
+  color: #817566;
+}
+.card, .panel, .document, .doc-card, .status-card,
+.stat-card, .result-card, .box {
+  background: #fffaf2 !important;
+  border-color: #ddcdb9 !important;
+  color: #392b20 !important;
+  box-shadow: 0 3px 12px rgba(83, 57, 34, .045) !important;
+}
+input, textarea, select {
+  background: #fcf7ef !important;
+  color: #392b20 !important;
+  border: 1px solid #d7c5b0 !important;
+  border-radius: 12px !important;
+}
+input::placeholder, textarea::placeholder {
+  color: #968779 !important;
+}
+button, .btn, .btn-p, .primary, .btn-primary {
+  background: #b76543 !important;
+  color: #fffaf2 !important;
+  border-color: #b76543 !important;
+  border-radius: 12px !important;
+}
+button:hover, .btn:hover, .btn-p:hover {
+  background: #9e5034 !important;
+}
+.tab {
+  color: #78695c !important;
+}
+.tab.active, .tab[aria-selected="true"] {
+  color: #a95737 !important;
+  border-bottom-color: #b76543 !important;
+}
+a { color: #a95737 !important; }
+pre, code {
+  background: #eee3d4 !important;
+  color: #493528 !important;
+  border-color: #ddcdb9 !important;
+}
+.badge, .chip, .tag {
+  background: #efe1ce !important;
+  color: #855038 !important;
+  border-color: #ddc5ab !important;
+}
+:focus-visible {
+  outline: 2px solid #b76543 !important;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+</style>
 </head>
 <body>
 
 <header>
-  <h1>padhowithPratyush</h1>
+  <h1>GEEKY NIKHIL</h1>
   <span class="badge hl">HNSW</span>
   <span class="badge">KD-TREE</span>
   <span class="badge">BRUTE FORCE</span>
-  <span class="badge" id="ollamaBadge">OLLAMA…</span>
-  <span id="statsLabel">loading…</span>
+  <span class="badge" id="ollamaBadge">OLLAMA</span>
+  <span id="statsLabel">loading</span>
 </header>
 
 <div class="layout">
 
-  <!-- ══ LEFT PANEL ══ -->
+  <!-- ══ LEFT PANEL ══ -->
   <div class="left-panel">
     <div>
       <div class="sec">Query (Demo Vectors)</div>
       <div style="display:flex;flex-direction:column;gap:6px">
-        <input type="text" id="qInput" placeholder="binary tree, sushi, basketball…" />
-        <button class="btn-p" onclick="runSearch()">⚡ SEARCH</button>
+        <input type="text" id="qInput" placeholder="binary tree, sushi, basketball" />
+        <button class="btn-p" onclick="runSearch()">⚡</button>
       </div>
     </div>
     <div>
@@ -213,7 +347,7 @@ button {
     <div>
       <div class="sec">Insert Demo Vector</div>
       <div style="display:flex;flex-direction:column;gap:6px">
-        <input type="text" id="addMeta" placeholder="Description…" />
+        <input type="text" id="addMeta" placeholder="Description" />
         <select id="addCat">
           <option value="cs">CS / Algorithms</option>
           <option value="math">Mathematics</option>
@@ -225,14 +359,14 @@ button {
     </div>
     <div>
       <div class="sec">Benchmark</div>
-      <button class="btn-s" onclick="runBenchmark()">▶ COMPARE ALL ALGOS</button>
+      <button class="btn-s" onclick="runBenchmark()">â–¶ COMPARE ALL ALGOS</button>
     </div>
   </div>
 
-  <!-- ══ CENTER: SCATTER PLOT ══ -->
+  <!-- ══ CENTER: SCATTER PLOT ══ -->
   <div class="center-panel"><canvas id="scatter"></canvas></div>
 
-  <!-- ══ RIGHT PANEL: TABS ══ -->
+  <!-- ══ RIGHT PANEL: TABS ══ -->
   <div class="right-panel">
     <div class="tabs">
       <div class="tab on"  onclick="switchTab('search')">SEARCH</div>
@@ -304,7 +438,7 @@ button {
               <option value="3" selected>Top 3</option>
               <option value="5">Top 5</option>
             </select>
-            <button class="btn-g" id="askBtn" onclick="askAI()" style="flex:1">🤖 ASK AI</button>
+            <button class="btn-g" id="askBtn" onclick="askAI()" style="flex:1">AI ASK</button>
           </div>
           <div style="font-size:10px;color:var(--muted)">Uses your inserted documents as context. Answers come from the local LLM.</div>
         </div>
@@ -323,24 +457,24 @@ button {
 <div id="tip"></div>
 
 <script>
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 //  CONSTANTS
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 const API  = 'http://localhost:8080';
 const DIMS = 16;
 const COL  = { cs:'#00d9ff', math:'#b388ff', food:'#ffb74d', sports:'#69f0ae', doc:'#a6e3a1', default:'#90a4ae' };
 const DIM_COL = ['#00d9ff','#00d9ff','#00d9ff','#00d9ff','#b388ff','#b388ff','#b388ff','#b388ff',
                  '#ffb74d','#ffb74d','#ffb74d','#ffb74d','#69f0ae','#69f0ae','#69f0ae','#69f0ae'];
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 //  STATE
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 let allItems = [], pcaPoints = [], hitIds = new Set(), queryPt = null;
 let hoverItem = null, pulse = 0, selAlgo = 'hnsw', searchResults = [];
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 //  TABS
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t,i) => {
     const names = ['search','docs','rag'];
@@ -351,9 +485,9 @@ function switchTab(name) {
   if (name === 'docs') loadDocList();
 }
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 //  TEXT → 16-D EMBEDDING (for demo vectors)
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 const KW = {
   cs:     ['algorithm','data','tree','graph','array','linked','hash','stack','queue','sort','binary','dynamic','programming','recursion','complexity','pointer','node','search','insert','bfs','dfs','heap','trie'],
   math:   ['calculus','matrix','probability','theorem','integral','derivative','linear','algebra','equation','function','prime','modular','combinatorics','permutation','eigenvalue','statistics','proof'],
@@ -381,9 +515,9 @@ function textToEmbedding(text) {
   return emb;
 }
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 //  PCA
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 function pca2D(embs) {
   const n = embs.length, d = embs[0].length;
   if (n < 2) return embs.map(() => [0,0]);
@@ -411,9 +545,9 @@ function pca2D(embs) {
   return X.map(x=>[x.reduce((s,v,i)=>s+v*pc1[i],0),x.reduce((s,v,i)=>s+v*pc2[i],0)]);
 }
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 //  SCATTER PLOT
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 const sc=document.getElementById('scatter'), ctx=sc.getContext('2d');
 let bounds={minX:-1,maxX:1,minY:-1,maxY:1};
 
@@ -435,8 +569,8 @@ function drawFrame() {
     ctx.beginPath();ctx.moveTo(70,ty);ctx.lineTo(sc.width-70,ty);ctx.stroke();
   }
   ctx.fillStyle='#1a1a38'; ctx.font='11px Fira Code,monospace';
-  ctx.fillText('PC₁ →',sc.width/2-40,sc.height-18);
-  ctx.save();ctx.translate(18,sc.height/2+50);ctx.rotate(-Math.PI/2);ctx.fillText('PC₂ →',0,0);ctx.restore();
+  ctx.fillText('PCâ‚ →',sc.width/2-40,sc.height-18);
+  ctx.save();ctx.translate(18,sc.height/2+50);ctx.rotate(-Math.PI/2);ctx.fillText('PCâ‚‚ →',0,0);ctx.restore();
   ctx.fillStyle='#151530'; ctx.font='12px Fira Code,monospace';
   ctx.fillText('2D PCA Projection  ·  Semantic Space',80,28);
 
@@ -501,9 +635,9 @@ sc.addEventListener('mousemove', e => {
 });
 sc.addEventListener('mouseleave',()=>{hoverItem=null;document.getElementById('tip').style.display='none';});
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 //  LOAD DEMO ITEMS
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 async function loadItems() {
   try {
     const r = await fetch(API+'/items');
@@ -520,9 +654,9 @@ async function loadItems() {
   } catch(_) {}
 }
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 //  DEMO SEARCH
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 function setAlgo(el) {
   document.querySelectorAll('.algo-btn').forEach(b=>b.classList.remove('on'));
   el.classList.add('on'); selAlgo=el.dataset.algo;
@@ -634,9 +768,9 @@ async function deleteItem(id) {
   } catch(_) {}
 }
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 //  DOCUMENT MANAGEMENT
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 async function checkOllamaStatus() {
   try {
     const r=await fetch(API+'/status'), d=await r.json();
@@ -645,7 +779,7 @@ async function checkOllamaStatus() {
     if (d.ollamaAvailable) {
       badge.className='badge ok'; badge.textContent='OLLAMA ✓';
       box.className='ollama-status ok';
-      box.innerHTML=`<span style="color:var(--green)">● Online</span><br>`+
+      box.innerHTML=`<span style="color:var(--green)">● Online</span><br>`+
         `Embed: <span style="color:var(--accent)">${d.embedModel}</span><br>`+
         `Generate: <span style="color:var(--accent)">${d.genModel}</span><br>`+
         `Dims: <span style="color:var(--muted)">${d.docDims||'(first insert sets this)'}</span><br>`+
@@ -653,7 +787,7 @@ async function checkOllamaStatus() {
     } else {
       badge.className='badge err'; badge.textContent='OLLAMA ✗';
       box.className='ollama-status err';
-      box.innerHTML=`<span style="color:var(--red)">● Offline</span><br><br>`+
+      box.innerHTML=`<span style="color:var(--red)">● Offline</span><br><br>`+
         `To enable RAG features:<br>`+
         `<span style="color:var(--muted)">1. Install from ollama.com<br>`+
         `2. ollama pull nomic-embed-text<br>`+
@@ -727,9 +861,9 @@ async function deleteDoc(id) {
   } catch(_) {}
 }
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 //  RAG  — Ask AI
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 document.getElementById('ragQuestion').addEventListener('keydown',e=>{
   if(e.key==='Enter'&&e.ctrlKey)askAI();
 });
@@ -807,7 +941,7 @@ async function askAI() {
       aDiv.innerHTML=`<div class="chat-a-label">ERROR</div><div class="chat-a-text" style="color:var(--red)">${d.error}</div>`;
     } else {
       // Build answer block with typewriter
-      aDiv.innerHTML=`<div class="chat-a-label">🤖 ${d.model||'llm'}</div>`+
+      aDiv.innerHTML=`<div class="chat-a-label">AI ${d.model||'llm'}</div>`+
         `<div class="chat-a-text" id="typeTarget"></div>`+
         `<div class="chat-ctx">`+
           `<div class="chat-ctx-label">RETRIEVED CONTEXT (${d.contexts.length} chunks)</div>`+
@@ -838,7 +972,7 @@ async function askAI() {
   }
 
   document.getElementById('ragQuestion').value='';
-  btn.disabled=false; btn.textContent='🤖 ASK AI';
+  btn.disabled=false; btn.textContent='AI ASK';
   history.scrollTop=history.scrollHeight;
 }
 
@@ -847,9 +981,9 @@ function toggleCtx(i) {
   el.style.display=el.style.display==='block'?'none':'block';
 }
 
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 //  BOOT
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
 resize(); drawFrame();
 loadItems().then(loadHNSW);
 checkOllamaStatus();

@@ -391,23 +391,50 @@ public:
         return out;
     }
 
-    struct BenchOut { long long bfUs, kdUs, hnswUs; int n; };
 
-    BenchOut benchmark(const std::vector<float>& q, int k, const std::string& metric) {
-        std::lock_guard<std::mutex> lk(mu);
-        auto dfn  = getDistFn(metric);
-        auto time = [&](auto fn) -> long long {
-            auto t = std::chrono::high_resolution_clock::now();
-            fn();
-            return std::chrono::duration_cast<std::chrono::microseconds>(
-                std::chrono::high_resolution_clock::now() - t).count();
-        };
-        return {
-            time([&]{ bf.knn(q, k, dfn); }),
-            time([&]{ kdt.knn(q, k, dfn); }),
-            time([&]{ hnsw.knn(q, k, 50, dfn); }),
-            (int)store.size()
-        };
+struct BenchOut {
+	long long bfUs, kdUs, hnswUs;
+	int n;
+	double hnswRecallAtK;
+	};
+
+
+
+   BenchOut benchmark(const std::vector<float>& q, int k, const std::string& metric) {
+       std::lock_guard<std::mutex> lk(mu);
+       auto dfn = getDistFn(metric);
+
+       auto time = [&](auto fn) -> long long {
+           auto t = std::chrono::high_resolution_clock::now();
+           fn();
+           return std::chrono::duration_cast<std::chrono::microseconds>(
+               std::chrono::high_resolution_clock::now() - t).count();
+       };
+
+       // Measure the time taken by each algorithm.
+       long long bfUs = time([&]{ bf.knn(q, k, dfn); });
+       long long kdUs = time([&]{ kdt.knn(q, k, dfn); });
+       long long hnswUs = time([&]{ hnsw.knn(q, k, 50, dfn); });
+
+       // Brute Force provides the exact top-k results for comparison.
+       auto exact = bf.knn(q, k, dfn);
+       auto approximate = hnsw.knn(q, k, 50, dfn);
+
+       int matches = 0;
+       for (const auto& [distance, id] : approximate) {
+           for (const auto& [exactDistance, exactId] : exact) {
+               if (id == exactId) {
+                   ++matches;
+                   break;
+               }
+           }
+       }
+
+       double recall = exact.empty()
+           ? 0.0
+           : static_cast<double>(matches) / exact.size();
+
+       return {bfUs, kdUs, hnswUs, (int)store.size(), recall};
     }
 
     std::vector<VectorItem> all() {
@@ -427,6 +454,12 @@ public:
         return store.size();
     }
 };
+
+
+// =====================================================================
+//  JSON HELPERS
+// =====================================================================
+
 
 // =====================================================================
 //  JSON HELPERS
@@ -863,8 +896,13 @@ int main() {
         auto metric = req.get_param_value("metric"); if (metric.empty()) metric = "cosine";
         auto b = db.benchmark(q, k, metric);
         std::ostringstream ss;
-        ss << "{\"bruteforceUs\":" << b.bfUs << ",\"kdtreeUs\":" << b.kdUs
-           << ",\"hnswUs\":"       << b.hnswUs << ",\"itemCount\":" << b.n << '}';
+
+ss << "{\"bruteforceUs\":" << b.bfUs
+   << ",\"kdtreeUs\":" << b.kdUs
+   << ",\"hnswUs\":" << b.hnswUs
+   << ",\"itemCount\":" << b.n
+   << ",\"hnswRecallAtK\":" << b.hnswRecallAtK << '}';
+
         res.set_content(ss.str(), "application/json");
     });
 
