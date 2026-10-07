@@ -1,0 +1,5 @@
+implementation,metric,n,queries,k,efSearch,cosine_built_recall,metric_consistent_recall
+uploaded_upstream,euclidean,1000,100,10,50,0.98,0.509
+uploaded_upstream,manhattan,1000,100,10,50,0.98,0.579
+updated_fork,euclidean,1000,100,10,50,0.986,0.994
+updated_fork,manhattan,1000,100,10,50,0.985,0.992

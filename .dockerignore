@@ -1,0 +1,6 @@
+.git
+build
+*.exe
+*.o
+data
+benchmarks/*.csv

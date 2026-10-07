@@ -1,0 +1,37 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama-models:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  models:
+    image: ollama/ollama:latest
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    depends_on:
+      ollama:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["ollama pull nomic-embed-text && ollama pull llama3.2"]
+  app:
+    build: .
+    ports:
+      - "8080:10000"
+    environment:
+      OLLAMA_HOST: ollama
+      OLLAMA_PORT: "11434"
+      DATA_DIR: /app/data
+      HNSW_M: "16"
+      HNSW_EF_CONSTRUCTION: "200"
+    volumes:
+      - vector-data:/app/data
+    depends_on:
+      models:
+        condition: service_completed_successfully
+volumes:
+  ollama-models:
+  vector-data:
