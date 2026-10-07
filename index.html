@@ -406,6 +406,7 @@ pre, code {
     <!-- TAB: DOCUMENTS -->
     <div class="tab-content" id="tab-docs">
       <div>
+        <div class="sec">Search breadth</div><label>efSearch <input id="efSearch" type="number" min="1" max="10000" value="50" /></label>
         <div class="sec">Ollama Status</div>
         <div class="ollama-status" id="ollamaStatus">Checking…</div>
       </div>
@@ -414,6 +415,8 @@ pre, code {
         <div style="display:flex;flex-direction:column;gap:8px">
           <input type="text" id="docTitle" placeholder="Document title / topic…" />
           <textarea id="docText" placeholder="Paste your notes, textbook excerpt, lecture content…&#10;&#10;Long text is automatically split into overlapping chunks and each chunk gets its own real embedding via Ollama's nomic-embed-text model."></textarea>
+          <label>Words per chunk <input id="chunkWords" type="number" min="1" max="10000" value="250" /></label>
+          <label>Overlap words <input id="overlapWords" type="number" min="0" value="30" /></label>
           <button class="btn-g" id="insertDocBtn" onclick="insertDocument()">⚡ EMBED &amp; INSERT</button>
           <div id="insertStatus" style="font-size:11px;color:var(--muted)"></div>
         </div>
@@ -430,6 +433,7 @@ pre, code {
     <div class="tab-content" id="tab-rag">
       <div>
         <div class="sec">Ask a Question</div>
+        <label>Maximum cosine distance <input id="maxDistance" type="number" min="0" max="2" step="0.05" value="0.7" /></label>
         <div style="display:flex;flex-direction:column;gap:8px">
           <textarea id="ragQuestion" rows="3" placeholder="What is dynamic programming?&#10;Explain the main idea of HNSW.&#10;How does the recipe differ from…"></textarea>
           <div style="display:flex;gap:6px">
@@ -440,7 +444,7 @@ pre, code {
             </select>
             <button class="btn-g" id="askBtn" onclick="askAI()" style="flex:1">AI ASK</button>
           </div>
-          <div style="font-size:10px;color:var(--muted)">Uses your inserted documents as context. Answers come from the local LLM.</div>
+          <div style="font-size:10px;color:var(--muted)">Uses your inserted documents as context. Answers cite retrieved sources; insufficient retrieval returns an abstention.</div>
         </div>
       </div>
       <div>
@@ -460,7 +464,9 @@ pre, code {
 // ════════════════════════════════════════════════════════════
 //  CONSTANTS
 // ════════════════════════════════════════════════════════════
-const API  = 'http://localhost:8080';
+const API = window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin;
+const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const efSearch = () => Number(document.getElementById('efSearch').value);
 const DIMS = 16;
 const COL  = { cs:'#00d9ff', math:'#b388ff', food:'#ffb74d', sports:'#69f0ae', doc:'#a6e3a1', default:'#90a4ae' };
 const DIM_COL = ['#00d9ff','#00d9ff','#00d9ff','#00d9ff','#b388ff','#b388ff','#b388ff','#b388ff',
@@ -630,7 +636,7 @@ sc.addEventListener('mousemove', e => {
   if (hoverItem) {
     const col=COL[hoverItem.category]||COL.default;
     tip.style.display='block';tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-8)+'px';
-    tip.innerHTML=`<span style="color:${col}">[${hoverItem.category}]</span><br>${hoverItem.metadata}`;
+    tip.innerHTML=`<span style="color:${col}">[${escapeHtml(hoverItem.category)}]</span><br>${escapeHtml(hoverItem.metadata)}`;
   } else tip.style.display='none';
 });
 sc.addEventListener('mouseleave',()=>{hoverItem=null;document.getElementById('tip').style.display='none';});
@@ -666,7 +672,7 @@ async function runSearch() {
   const text=document.getElementById('qInput').value.trim(); if(!text)return;
   const emb=textToEmbedding(text),k=parseInt(document.getElementById('kSlider').value);
   const metric=document.getElementById('metric').value;
-  const url=`${API}/search?v=${emb.join(',')}&k=${k}&metric=${metric}&algo=${selAlgo}`;
+  const url=`${API}/search?v=${emb.join(',')}&k=${k}&metric=${metric}&algo=${selAlgo}&efSearch=${efSearch()}`;
   try {
     const r=await fetch(url), data=await r.json();
     searchResults=data.results||[]; hitIds=new Set(searchResults.map(r=>r.id));
@@ -693,9 +699,9 @@ function renderResults(results) {
     const col=COL[r.category]||COL.default;
     return `<div class="rcard" onmouseenter="hoverItem={id:${r.id}}" onmouseleave="hoverItem=null">
       <div class="rrank">#${i+1} NEAREST</div>
-      <div class="rmeta">${r.metadata}</div>
+      <div class="rmeta">${escapeHtml(r.metadata)}</div>
       <div class="rfoot">
-        <span class="rcat" style="background:${col}18;color:${col};border:1px solid ${col}44">${r.category.toUpperCase()}</span>
+        <span class="rcat" style="background:${col}18;color:${col};border:1px solid ${col}44">${escapeHtml(r.category.toUpperCase())}</span>
         <span class="rdist">dist: ${r.distance.toFixed(5)}</span>
         <button class="del" onclick="deleteItem(${r.id})">✕</button>
       </div>
@@ -723,7 +729,7 @@ async function runBenchmark() {
   const text=document.getElementById('qInput').value.trim()||'binary tree algorithm';
   const emb=textToEmbedding(text),metric=document.getElementById('metric').value;
   try {
-    const r=await fetch(`${API}/benchmark?v=${emb.join(',')}&k=5&metric=${metric}`);
+    const r=await fetch(`${API}/benchmark?v=${emb.join(',')}&k=5&metric=${metric}&efSearch=${efSearch()}`);
     const d=await r.json();
     document.getElementById('benchSec').style.display='block';
     const mx=Math.max(d.bruteforceUs,d.kdtreeUs,d.hnswUs,1);
@@ -809,11 +815,11 @@ async function insertDocument() {
   try {
     const r=await fetch(API+'/doc/insert',{
       method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({title,text})
+      body:JSON.stringify({title,text,chunkWords:Number(document.getElementById("chunkWords").value),overlapWords:Number(document.getElementById("overlapWords").value)})
     });
     const d=await r.json();
     if (d.error) {
-      status.innerHTML=`<span style="color:var(--red)">✗ ${d.error}</span>`;
+      status.innerHTML=`<span style="color:var(--red)">✗ ${escapeHtml(d.error)}</span>`;
     } else {
       status.innerHTML=`<span style="color:var(--green)">✓ Inserted ${d.chunks} chunk(s) · ${d.dims}D embeddings</span>`;
       document.getElementById('docTitle').value='';
@@ -844,8 +850,8 @@ async function loadDocList() {
     }
     document.getElementById('docList').innerHTML=docs.map(d=>`
       <div class="dcard">
-        <div class="dcard-title">${d.title}</div>
-        <div class="dcard-preview">${d.preview}</div>
+        <div class="dcard-title">${escapeHtml(d.title)}</div>
+        <div class="dcard-preview">${escapeHtml(d.preview)}</div>
         <div class="dcard-foot">
           <span class="dcard-words">${d.words} words</span>
           <button class="del" onclick="deleteDoc(${d.id})">✕</button>
@@ -930,7 +936,7 @@ async function askAI() {
   try {
     const r=await fetch(API+'/doc/ask',{
       method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({question,k})
+      body:JSON.stringify({question,k,efSearch:efSearch(),maxDistance:Number(document.getElementById("maxDistance").value)})
     });
     const d=await r.json();
     thinkDiv.remove();
@@ -938,15 +944,15 @@ async function askAI() {
     const aDiv=document.createElement('div'); aDiv.className='chat-a';
 
     if (d.error) {
-      aDiv.innerHTML=`<div class="chat-a-label">ERROR</div><div class="chat-a-text" style="color:var(--red)">${d.error}</div>`;
+      aDiv.innerHTML=`<div class="chat-a-label">ERROR</div><div class="chat-a-text" style="color:var(--red)">${escapeHtml(d.error)}</div>`;
     } else {
       // Build answer block with typewriter
-      aDiv.innerHTML=`<div class="chat-a-label">AI ${d.model||'llm'}</div>`+
+      aDiv.innerHTML=`<div class="chat-a-label">AI ${escapeHtml(d.model||'llm')}</div>`+
         `<div class="chat-a-text" id="typeTarget"></div>`+
         `<div class="chat-ctx">`+
           `<div class="chat-ctx-label">RETRIEVED CONTEXT (${d.contexts.length} chunks)</div>`+
-          d.contexts.map((c,i)=>`<span class="ctx-chip" onclick="toggleCtx(${i})">#${i+1} ${c.title} · ${c.distance.toFixed(3)}</span>`+
-            `<div class="ctx-expand" id="ctx-${i}">${c.text}</div>`).join('')+
+          d.contexts.map((c,i)=>`<span class="ctx-chip" onclick="toggleCtx(${i})">#${i+1} ${escapeHtml(c.title)} · distance ${c.distance.toFixed(3)}</span>`+
+            `<div class="ctx-expand" id="ctx-${i}">${escapeHtml(c.text)}</div>`).join('')+
         `</div>`;
       history.appendChild(aDiv);
 

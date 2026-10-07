@@ -1,0 +1,3 @@
+metric,n,queries,k,efSearch,cosine_built_recall,metric_consistent_recall
+euclidean,1000,100,10,50,0.986,0.994
+manhattan,1000,100,10,50,0.985,0.992

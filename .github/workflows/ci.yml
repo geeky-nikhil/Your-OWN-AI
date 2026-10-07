@@ -1,0 +1,21 @@
+name: C++ regression checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make test
+      - name: Check frontend JavaScript
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path('index.html').read_text()
+          Path('/tmp/frontend.js').write_text(re.search(r'<script>(.*?)</script>', html, re.S).group(1))
+          PY
+          node --check /tmp/frontend.js
+      - run: make build/benchmark
+      - run: ./build/benchmark 1000 16 20 16 200 cosine > /tmp/benchmark.csv

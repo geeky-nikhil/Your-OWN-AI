@@ -7,12 +7,29 @@ Implements **HNSW**, **KD-Tree**, and **Brute Force** search algorithms side-by-
 
 ---
 
+## Updated version: quick start
+
+```bash
+make test
+./build/app
+```
+
+Open http://localhost:8080. Install/start Ollama and pull `nomic-embed-text` and `llama3.2` for real document features. The vector demo works without Ollama.
+
+For the complete app + Ollama setup, run `docker compose up --build`. It downloads both models and keeps model files and database snapshots in named volumes. This Compose configuration is provided but was not run in the development environment.
+
+- [Changes, configuration and limitations](docs/IMPLEMENTATION.md)
+- [Measured benchmark results](benchmarks/REPORT.md)
+- [Interview preparation and contribution explanation](docs/INTERVIEW.md)
+
+Vectors and document chunks now survive restarts in `DATA_DIR` (default `data`). Snapshot files contain document text; keep this directory private. Existing Windows `.exe` uploads are old builds and are not included in the updated source package.
+
 ## What This Project Does
 
 | Feature | Description |
 |---|---|
-| **3 Search Algorithms** | HNSW (production-grade), KD-Tree, Brute Force — run all three and compare speed |
-| **3 Distance Metrics** | Cosine similarity, Euclidean distance, Manhattan distance |
+| **3 Search Algorithms** | HNSW (educational approximate index), KD-Tree, Brute Force — run all three and compare speed |
+| **3 Distance Metrics** | Cosine distance, Euclidean distance, Manhattan distance |
 | **16D Demo Vectors** | 20 pre-loaded semantic vectors across 4 categories (CS, Math, Food, Sports) |
 | **2D PCA Scatter Plot** | Live visualization of semantic space — watch clusters form |
 | **Real Document Embedding** | Paste any text → Ollama embeds it with `nomic-embed-text` (768D) |
@@ -42,7 +59,7 @@ Ollama (llama3.2)                  ← reads retrieved chunks, generates an answ
 Answer
 ```
 
-**HNSW (Hierarchical Navigable Small World)** is the same algorithm used by Pinecone, Weaviate, Chroma, and Milvus. It builds a multilayer graph where each layer is progressively sparser — searches start at the top layer and zoom in, achieving O(log N) complexity instead of O(N) for brute force.
+**HNSW (Hierarchical Navigable Small World)** is the same algorithm used by Pinecone, Weaviate, Chroma, and Milvus. It builds a multilayer graph where each layer is progressively sparser — searches start at the top layer and zoom in. Search performance is empirical and depends on graph construction, dimensions, data distribution and search breadth; logarithmic behavior is not a universal guarantee.
 
 ---
 
@@ -280,12 +297,12 @@ VectorDB/
 ### Architecture (main.cpp)
 
 ```
-BruteForce          O(N·d)      Exact, baseline
-KDTree              O(log N)    Exact, axis-aligned partitioning
-HNSW                O(log N)    Approximate, multilayer small-world graph
+BruteForce          O(N·d + N log N) Exact; full sorting baseline
+KDTree              O(N·d) worst case; Euclidean/Manhattan pruning, full traversal for cosine
+HNSW                Empirical performance depends on graph, data and search breadth; approximate
 
 VectorDB            Unified interface over all 3 (16D demo vectors)
-DocumentDB          HNSW-only index for real Ollama embeddings (768D)
+DocumentDB          Cosine HNSW; brute-force fallback for fewer than 10 chunks
 OllamaClient        HTTP client → /api/embeddings + /api/generate
 ```
 
@@ -297,7 +314,7 @@ OllamaClient        HTTP client → /api/embeddings + /api/generate
 
 Nodes are inserted into a multilayer graph. Each node randomly gets assigned a maximum layer. Layer 0 has all nodes with many connections; higher layers have fewer nodes (exponentially fewer) with longer-range connections.
 
-**Insert:** Start at the top layer, greedily find the nearest node, drop a layer, repeat. At each layer from your assigned max down to 0, run a beam search (ef_construction=200) and connect to the M nearest neighbors bidirectionally.
+**Insert:** Start at the top layer, greedily find the nearest node, drop a layer, repeat. At each layer from your assigned max down to 0, run a beam search (ef_construction=200) and select up to M neighbors (2M on layer zero) with a diversity heuristic, then add and prune reciprocal links.
 
 **Search:** Same greedy descent from top layer. At layer 0, expand to ef nearest candidates using a priority queue.
 
@@ -307,9 +324,9 @@ Nodes are inserted into a multilayer graph. Each node randomly gets assigned a m
 
 Binary space partitioning. Each node splits space along one dimension (cycling through all dimensions). Search prunes entire subtrees when the closest possible point in that subtree can't beat the current best — the "ball within hyperslab" check.
 
-**Weakness:** Degrades with high dimensions (curse of dimensionality). Works well for ≤20D, becomes close to brute force at 768D.
+**Weakness:** Degrades with high dimensions (curse of dimensionality). Effectiveness depends on data distribution; high dimensions often reduce pruning. Cosine searches intentionally traverse all nodes.
 
-### Why HNSW Wins at High Dimensions
+### Why HNSW Can Help at High Dimensions
 
 KD-Tree pruning relies on axis-aligned distance bounds. In high dimensions, almost all the space is near the boundary of the hypersphere — no subtrees get pruned. HNSW's graph-based approach doesn't have this problem.
 
@@ -345,6 +362,8 @@ Recompile and restart.
 
 This project is based on [Your-OWN-AI by perryvegehan](https://github.com/perryvegehan/Your-OWN-AI).
 
-My contributions include UI rebranding, cloud deployment configuration, and HNSW recall benchmarking.
+Fork extensions include UI rebranding, deployment configuration and Recall@k evaluation. This update adds metric-consistent HNSW indexes, safe KD-tree cosine handling, configurable retrieval and index parameters, reproducible benchmarks, grounded RAG with source display, source-vector snapshots, and automated regression checks.
+
+The current update was implemented with Codex assistance. The original search engine remains attributed to the upstream project; these extensions do not imply authorship of the upstream engine. See [the implementation notes](docs/IMPLEMENTATION.md) for changes, evidence and limitations.
 
 The upstream README identifies the project as MIT-licensed. Refer to the upstream repository for the original license and copyright notices, and preserve all applicable notices when redistributing the code.

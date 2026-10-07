@@ -16,3 +16,11 @@ bin/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Runtime snapshots and local settings
+data/
+*.snapshot
+*.snapshot.tmp
+.env
+__pycache__/
+*.pyc
